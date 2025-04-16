@@ -1,5 +1,5 @@
 {
-  "name": "mapbox-gl",
+  "name": "@glossmod/mapbox-gl",
   "description": "A WebGL interactive maps library",
   "version": "3.11.0",
   "main": "dist/mapbox-gl.js",
@@ -9,7 +9,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mapbox/mapbox-gl-js.git"
+    "url": "git://github.com/3DMXM/mapbox-gl-js.git"
   },
   "workspaces": [
     "src/style-spec",
@@ -130,7 +130,7 @@
     "build-csp": "rollup -c rollup.config.csp.js",
     "build-test-suite": "rollup -c test/integration/rollup.config.test.js",
     "build-css": "postcss -o dist/mapbox-gl.css src/css/mapbox-gl.css",
-    "build-style-spec": "npm run build --workspace src/style-spec && mkdir -p dist/style-spec && cp src/style-spec/dist/* dist/style-spec",
+    "build-style-spec": "npm run build --workspace src/style-spec && if not exist dist\\style-spec mkdir dist\\style-spec && xcopy /y /s src\\style-spec\\dist\\* dist\\style-spec\\",
     "build-dts": "dts-bundle-generator --no-banner --export-referenced-types=false --umd-module-name=mapboxgl -o ./dist/mapbox-gl.d.ts ./src/index.ts",
     "watch-css": "postcss --watch -o dist/mapbox-gl.css src/css/mapbox-gl.css",
     "build-token": "node build/generate-access-token-script.js",

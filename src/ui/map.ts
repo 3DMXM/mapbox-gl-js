@@ -1,8 +1,8 @@
-import {version} from '../../package.json';
-import {asyncAll, deepEqual, extend, bindAll, warnOnce, uniqueId, isSafariWithAntialiasingBug} from '../util/util';
+import { version } from '../../package.json';
+import { asyncAll, deepEqual, extend, bindAll, warnOnce, uniqueId, isSafariWithAntialiasingBug } from '../util/util';
 import browser from '../util/browser';
 import * as DOM from '../util/dom';
-import {getImage, ResourceType} from '../util/ajax';
+import { getImage, ResourceType } from '../util/ajax';
 import {
     RequestManager,
     mapSessionAPI,
@@ -23,57 +23,57 @@ import Transform from '../geo/transform';
 import Hash from './hash';
 import HandlerManager from './handler_manager';
 import Camera from './camera';
-import LngLat, {LngLatBounds} from '../geo/lng_lat';
+import LngLat, { LngLatBounds } from '../geo/lng_lat';
 import Point from '@mapbox/point-geometry';
 import AttributionControl from './control/attribution_control';
 import LogoControl from './control/logo_control';
-import {supported} from '@mapbox/mapbox-gl-supported';
-import {RGBAImage} from '../util/image';
-import {Event, ErrorEvent} from '../util/evented';
-import {MapMouseEvent} from './events';
+import { supported } from '@mapbox/mapbox-gl-supported';
+import { RGBAImage } from '../util/image';
+import { Event, ErrorEvent } from '../util/evented';
+import { MapMouseEvent } from './events';
 import TaskQueue from '../util/task_queue';
 import webpSupported from '../util/webp_supported';
-import {PerformanceUtils, PerformanceMarkers} from '../util/performance';
-import {LivePerformanceMarkers, LivePerformanceUtils} from '../util/live_performance';
+import { PerformanceUtils, PerformanceMarkers } from '../util/performance';
+import { LivePerformanceMarkers, LivePerformanceUtils } from '../util/live_performance';
 import EasedVariable from '../util/eased_variable';
-import {GLOBE_ZOOM_THRESHOLD_MAX} from '../geo/projection/globe_constants';
-import {setCacheLimits} from '../util/tile_request_cache';
-import {Debug} from '../util/debug';
+import { GLOBE_ZOOM_THRESHOLD_MAX } from '../geo/projection/globe_constants';
+import { setCacheLimits } from '../util/tile_request_cache';
+import { Debug } from '../util/debug';
 import config from '../util/config';
-import {isFQID} from '../util/fqid';
+import { isFQID } from '../util/fqid';
 import defaultLocale from './default_locale';
-import {TrackedParameters} from '../tracked-parameters/tracked_parameters';
-import {TrackedParametersMock} from '../tracked-parameters/tracked_parameters_base';
-import {InteractionSet} from './interactions';
-import {ImageId} from '../style-spec/expression/types/image_id';
+import { TrackedParameters } from '../tracked-parameters/tracked_parameters';
+import { TrackedParametersMock } from '../tracked-parameters/tracked_parameters_base';
+import { InteractionSet } from './interactions';
+import { ImageId } from '../style-spec/expression/types/image_id';
 
 import type Marker from '../ui/marker';
 import type Popup from '../ui/popup';
 import type SourceCache from '../source/source_cache';
-import type {Evented} from '../util/evented';
-import type {MapEventType, MapEventOf} from './events';
-import type {PointLike} from '../types/point-like';
-import type {FeatureState} from '../style-spec/expression/index';
-import type {RequestParameters} from '../util/ajax';
-import type {RequestTransformFunction} from '../util/mapbox';
-import type {LngLatLike, LngLatBoundsLike} from '../geo/lng_lat';
+import type { Evented } from '../util/evented';
+import type { MapEventType, MapEventOf } from './events';
+import type { PointLike } from '../types/point-like';
+import type { FeatureState } from '../style-spec/expression/index';
+import type { RequestParameters } from '../util/ajax';
+import type { RequestTransformFunction } from '../util/mapbox';
+import type { LngLatLike, LngLatBoundsLike } from '../geo/lng_lat';
 import type CustomStyleLayer from '../style/style_layer/custom_style_layer';
-import type {CustomLayerInterface} from '../style/style_layer/custom_style_layer';
-import type {StyleImageInterface, StyleImageMetadata} from '../style/style_image';
-import type {StyleOptions, StyleSetterOptions, AnyLayer, FeatureSelector, SourceSelector, QueryRenderedFeaturesParams, QueryRenderedFeaturesetParams} from '../style/style';
+import type { CustomLayerInterface } from '../style/style_layer/custom_style_layer';
+import type { StyleImageInterface, StyleImageMetadata } from '../style/style_image';
+import type { StyleOptions, StyleSetterOptions, AnyLayer, FeatureSelector, SourceSelector, QueryRenderedFeaturesParams, QueryRenderedFeaturesetParams } from '../style/style';
 import type ScrollZoomHandler from './handler/scroll_zoom';
-import type {ScrollZoomHandlerOptions} from './handler/scroll_zoom';
+import type { ScrollZoomHandlerOptions } from './handler/scroll_zoom';
 import type BoxZoomHandler from './handler/box_zoom';
-import type {TouchPitchHandler, TouchPitchHandlerOptions} from './handler/touch_zoom_rotate';
+import type { TouchPitchHandler, TouchPitchHandlerOptions } from './handler/touch_zoom_rotate';
 import type DragRotateHandler from './handler/shim/drag_rotate';
 import type DragPanHandler from './handler/shim/drag_pan';
-import type {DragPanOptions} from './handler/shim/drag_pan';
+import type { DragPanOptions } from './handler/shim/drag_pan';
 import type KeyboardHandler from './handler/keyboard';
 import type DoubleClickZoomHandler from './handler/shim/dblclick_zoom';
 import type TouchZoomRotateHandler from './handler/shim/touch_zoom_rotate';
-import type {TouchZoomRotateHandlerOptions} from './handler/shim/touch_zoom_rotate';
-import type {TaskID} from '../util/task_queue';
-import type {Cancelable} from '../types/cancelable';
+import type { TouchZoomRotateHandlerOptions } from './handler/shim/touch_zoom_rotate';
+import type { TaskID } from '../util/task_queue';
+import type { Cancelable } from '../types/cancelable';
 import type {
     LayerSpecification,
     LayoutSpecification,
@@ -95,16 +95,16 @@ import type {
     SchemaSpecification,
     ColorThemeSpecification,
 } from '../style-spec/types';
-import type {Source, SourceClass} from '../source/source';
-import type {EasingOptions} from './camera';
-import type {ContextOptions} from '../gl/context';
-import type {GeoJSONFeature, FeaturesetDescriptor, TargetFeature, TargetDescriptor} from '../util/vectortile_to_geojson';
-import type {ITrackedParameters} from '../tracked-parameters/tracked_parameters_base';
-import type {Callback} from '../types/callback';
-import type {Interaction} from './interactions';
-import type {SpriteFormat} from '../render/image_manager';
-import type {PitchRotateKey} from './handler_manager';
-import type {CanvasSourceOptions} from '../source/canvas_source';
+import type { Source, SourceClass } from '../source/source';
+import type { EasingOptions } from './camera';
+import type { ContextOptions } from '../gl/context';
+import type { GeoJSONFeature, FeaturesetDescriptor, TargetFeature, TargetDescriptor } from '../util/vectortile_to_geojson';
+import type { ITrackedParameters } from '../tracked-parameters/tracked_parameters_base';
+import type { Callback } from '../types/callback';
+import type { Interaction } from './interactions';
+import type { SpriteFormat } from '../render/image_manager';
+import type { PitchRotateKey } from './handler_manager';
+import type { CanvasSourceOptions } from '../source/canvas_source';
 
 export type ControlPosition = 'top-left' | 'top' | 'top-right' | 'right' | 'bottom-right' | 'bottom' | 'bottom-left' | 'left';
 
@@ -131,7 +131,7 @@ type Listener<T extends MapEventType> = (event: MapEventOf<T>) => void;
 type DelegatedListener = {
     targets: string[] | TargetDescriptor;
     listener: Listener<MapEventType>;
-    delegates: {[T in MapEventType]?: Listener<T>};
+    delegates: { [T in MapEventType]?: Listener<T> };
 };
 
 export const AVERAGE_ELEVATION_SAMPLING_INTERVAL = 500; // ms
@@ -478,7 +478,7 @@ export class Map extends Camera {
     _antialias: boolean;
     _refreshExpiredTiles: boolean;
     _hash: Hash;
-    _delegatedListeners: {[type: string]: DelegatedListener[]};
+    _delegatedListeners: { [type: string]: DelegatedListener[] };
     _fullscreenchangeEvent: 'fullscreenchange' | 'webkitfullscreenchange';
     _isInitialLoad: boolean;
     _shouldCheckAccess: boolean;
@@ -715,14 +715,14 @@ export class Map extends Camera {
         this._tp.registerParameter(this, ["Debug"], "repaint");
         this._tp.registerParameter(this, ["Debug"], "showTileAABBs");
         this._tp.registerParameter(this, ["Debug"], "showPadding");
-        this._tp.registerParameter(this, ["Debug"], "showCollisionBoxes", {noSave: true});
-        this._tp.registerParameter(this.transform, ["Debug"], "freezeTileCoverage", {noSave: true}, () => {
+        this._tp.registerParameter(this, ["Debug"], "showCollisionBoxes", { noSave: true });
+        this._tp.registerParameter(this.transform, ["Debug"], "freezeTileCoverage", { noSave: true }, () => {
             this._update();
         });
         this._tp.registerParameter(this, ["Debug", "Wireframe"], "showTerrainWireframe");
         this._tp.registerParameter(this, ["Debug", "Wireframe"], "showLayers2DWireframe");
         this._tp.registerParameter(this, ["Debug", "Wireframe"], "showLayers3DWireframe");
-        this._tp.registerParameter(this, ["Scaling"], "_scaleFactor", {min: 0.1, max: 10.0, step: 0.1}, () => {
+        this._tp.registerParameter(this, ["Scaling"], "_scaleFactor", { min: 0.1, max: 10.0, step: 0.1 }, () => {
             this.setScaleFactor(this._scaleFactor);
         });
 
@@ -784,14 +784,14 @@ export class Map extends Camera {
             const bounds = options.bounds;
             if (bounds) {
                 this.resize();
-                this.fitBounds(bounds, extend({}, options.fitBoundsOptions, {duration: 0}));
+                this.fitBounds(bounds, extend({}, options.fitBoundsOptions, { duration: 0 }));
             }
         }
 
         this.resize();
 
         if (options.attributionControl)
-            this.addControl(new AttributionControl({customAttribution: options.customAttribution}));
+            this.addControl(new AttributionControl({ customAttribution: options.customAttribution }));
 
         this._logoControl = new LogoControl();
         this.addControl(this._logoControl, options.logoPosition);
@@ -1407,7 +1407,7 @@ export class Map extends Camera {
      */
     getProjection(): ProjectionSpecification {
         if (this.transform.mercatorFromTransition) {
-            return {name: "globe", center: [0, 0]};
+            return { name: "globe", center: [0, 0] };
         }
         return this.transform.getProjection();
     }
@@ -1445,7 +1445,7 @@ export class Map extends Camera {
         if (!projection) {
             projection = null;
         } else if (typeof projection === 'string') {
-            projection = ({name: projection} as ProjectionSpecification);
+            projection = ({ name: projection } as ProjectionSpecification);
         }
 
         this._useExplicitProjection = !!projection;
@@ -1467,7 +1467,7 @@ export class Map extends Camera {
             tr.setMercatorFromTransition();
             projectionHasChanged = true;
         } else if (projection === 'mercator' && tr.zoom < GLOBE_ZOOM_THRESHOLD_MAX) {
-            tr.setProjection({name: 'globe'});
+            tr.setProjection({ name: 'globe' });
             projectionHasChanged = true;
         }
 
@@ -1485,7 +1485,7 @@ export class Map extends Camera {
         //  1. the explicit projection
         //  2. the stylesheet projection
         //  3. mercator (fallback)
-        const prioritizedProjection = explicitProjection || styleProjection || {name: "mercator"};
+        const prioritizedProjection = explicitProjection || styleProjection || { name: "mercator" };
 
         return this._updateProjection(prioritizedProjection);
     }
@@ -1595,9 +1595,9 @@ export class Map extends Camera {
 
             if (Array.isArray(targets)) {
                 const filteredLayers = targets.filter(layerId => this.getLayer(layerId));
-                features = filteredLayers.length ? this.queryRenderedFeatures(point, {layers: filteredLayers}) : [];
+                features = filteredLayers.length ? this.queryRenderedFeatures(point, { layers: filteredLayers }) : [];
             } else {
-                features = this.queryRenderedFeatures(point, {target: targets});
+                features = this.queryRenderedFeatures(point, { target: targets });
             }
 
             return features;
@@ -1613,7 +1613,7 @@ export class Map extends Camera {
                     mousein = false;
                 } else if (!mousein) {
                     mousein = true;
-                    listener.call(this, new MapMouseEvent(type, this, e.originalEvent, {features}));
+                    listener.call(this, new MapMouseEvent(type, this, e.originalEvent, { features }));
                 }
             };
 
@@ -1621,7 +1621,7 @@ export class Map extends Camera {
                 mousein = false;
             };
 
-            return {listener, targets, delegates: {mousemove, mouseout}};
+            return { listener, targets, delegates: { mousemove, mouseout } };
         } else if (type === 'mouseleave' || type === 'mouseout') {
             let mousein = false;
 
@@ -1643,7 +1643,7 @@ export class Map extends Camera {
                 }
             };
 
-            return {listener, targets, delegates: {mousemove, mouseout}};
+            return { listener, targets, delegates: { mousemove, mouseout } };
         } else {
             const delegate = (e: MapMouseEvent) => {
                 const features = queryRenderedFeatures(e.point);
@@ -1656,7 +1656,7 @@ export class Map extends Camera {
                 }
             };
 
-            return {listener, targets, delegates: {[type]: delegate}};
+            return { listener, targets, delegates: { [type]: delegate } };
         }
     }
 
@@ -2143,7 +2143,7 @@ export class Map extends Camera {
      * const pointOnSurface = map.isPointOnSurface([100, 200]);
      */
     isPointOnSurface(point: PointLike): boolean {
-        const {name} = this.transform.projection;
+        const { name } = this.transform.projection;
         if (name !== 'globe' && name !== 'mercator') {
             warnOnce(`${name} projection does not support isPointOnSurface, this API may behave unexpectedly.`);
         }
@@ -2281,7 +2281,7 @@ export class Map extends Camera {
      * });
      */
     setStyle(style: StyleSpecification | string | null, options?: SetStyleOptions): this {
-        options = extend({}, {localIdeographFontFamily: this._localIdeographFontFamily, localFontFamily: this._localFontFamily}, options);
+        options = extend({}, { localIdeographFontFamily: this._localIdeographFontFamily, localFontFamily: this._localFontFamily }, options);
 
         const diffNeeded =
             options.diff !== false &&
@@ -2340,7 +2340,7 @@ export class Map extends Camera {
             }
 
             this.style = new Style(this, styleOptions).load(style);
-            this.style.setEventedParent(this, {style: this.style});
+            this.style.setEventedParent(this, { style: this.style });
         }
 
         this._updateTerrain();
@@ -2350,7 +2350,7 @@ export class Map extends Camera {
     _lazyInitEmptyStyle() {
         if (!this.style) {
             this.style = new Style(this, {});
-            this.style.setEventedParent(this, {style: this.style});
+            this.style.setEventedParent(this, { style: this.style });
             this.style.loadEmpty();
         }
     }
@@ -2623,27 +2623,27 @@ export class Map extends Camera {
      */
     addImage(
         id: string,
-        image: HTMLImageElement | ImageBitmap | ImageData | StyleImageInterface | {width: number; height: number; data: Uint8Array | Uint8ClampedArray},
-        {pixelRatio = 1, sdf = false, stretchX, stretchY, content}: Partial<StyleImageMetadata> = {}
+        image: HTMLImageElement | ImageBitmap | ImageData | StyleImageInterface | { width: number; height: number; data: Uint8Array | Uint8ClampedArray },
+        { pixelRatio = 1, sdf = false, stretchX, stretchY, content }: Partial<StyleImageMetadata> = {}
     ) {
         this._lazyInitEmptyStyle();
         const version = 0;
 
         const imageId = ImageId.from(id);
         if (image instanceof HTMLImageElement || (ImageBitmap && image instanceof ImageBitmap)) {
-            const {width, height, data} = browser.getImageData(image);
-            this.style.addImage(imageId, {data: new RGBAImage({width, height}, data), pixelRatio, stretchX, stretchY, content, sdf, version, usvg: false});
+            const { width, height, data } = browser.getImageData(image);
+            this.style.addImage(imageId, { data: new RGBAImage({ width, height }, data), pixelRatio, stretchX, stretchY, content, sdf, version, usvg: false });
         } else if (image.width === undefined || image.height === undefined) {
             this.fire(new ErrorEvent(new Error(
                 'Invalid arguments to map.addImage(). The second argument must be an `HTMLImageElement`, `ImageData`, `ImageBitmap`, ' +
                 'or object with `width`, `height`, and `data` properties with the same format as `ImageData`')));
         } else {
-            const {width, height} = image;
+            const { width, height } = image;
             const userImage = (image as StyleImageInterface);
             const data = userImage.data;
 
             this.style.addImage(imageId, {
-                data: new RGBAImage({width, height}, new Uint8Array(data)),
+                data: new RGBAImage({ width, height }, new Uint8Array(data)),
                 pixelRatio,
                 stretchX,
                 stretchY,
@@ -2683,7 +2683,7 @@ export class Map extends Camera {
      */
     updateImage(
         id: string,
-        image: HTMLImageElement | ImageBitmap | ImageData | {width: number; height: number; data: Uint8Array | Uint8ClampedArray} | StyleImageInterface
+        image: HTMLImageElement | ImageBitmap | ImageData | { width: number; height: number; data: Uint8Array | Uint8ClampedArray } | StyleImageInterface
     ) {
         this._lazyInitEmptyStyle();
 
@@ -2695,7 +2695,7 @@ export class Map extends Camera {
             return;
         }
         const imageData = (image instanceof HTMLImageElement || (ImageBitmap && image instanceof ImageBitmap)) ? browser.getImageData(image) : image as ImageData;
-        const {width, height, data} = imageData;
+        const { width, height, data } = imageData;
 
         if (width === undefined || height === undefined) {
             this.fire(new ErrorEvent(new Error(
@@ -2720,7 +2720,7 @@ export class Map extends Camera {
         let performSymbolLayout = false;
 
         if (existingImage.usvg) {
-            existingImage.data = new RGBAImage({width, height}, new Uint8Array(data));
+            existingImage.data = new RGBAImage({ width, height }, new Uint8Array(data));
             existingImage.usvg = false;
             existingImage.icon = undefined;
             performSymbolLayout = true;
@@ -4201,7 +4201,7 @@ export class Map extends Camera {
             this._frame.cancel();
             this._frame = null;
         }
-        this.fire(new Event('webglcontextlost', {originalEvent: event}));
+        this.fire(new Event('webglcontextlost', { originalEvent: event }));
     }
 
     _contextRestored(event: any) {
@@ -4211,7 +4211,7 @@ export class Map extends Camera {
         this.style.reloadModels();
         this.style.clearSources();
         this._update();
-        this.fire(new Event('webglcontextrestored', {originalEvent: event}));
+        this.fire(new Event('webglcontextrestored', { originalEvent: event }));
     }
 
     _onMapScroll(event: any): boolean | null | undefined {
@@ -4509,7 +4509,7 @@ export class Map extends Camera {
 
             setTimeout(() => {
                 const gpuTime = this.painter.queryGpuTimeDeferredRender(deferredRenderQueries);
-                this.fire(new Event('gpu-timing-deferred-render', {gpuTime}));
+                this.fire(new Event('gpu-timing-deferred-render', { gpuTime }));
             }, 50); // Wait 50ms to give time for all GPU calls to finish before querying
         }
 
@@ -4540,7 +4540,7 @@ export class Map extends Camera {
                     // check the options to see if need to calculate the speed index
                     if (this.speedIndexTiming) {
                         const speedIndexNumber = this._calculateSpeedIndex();
-                        this.fire(new Event('speedindexcompleted', {speedIndex: speedIndexNumber}));
+                        this.fire(new Event('speedindexcompleted', { speedIndex: speedIndexNumber }));
                         this.speedIndexTiming = false;
                     }
                 }
@@ -4659,24 +4659,25 @@ export class Map extends Camera {
 
     _authenticate() {
         getMapSessionAPI(this._getMapId(), this._requestManager._skuToken, this._requestManager._customAccessToken, (err) => {
-            if (err) {
-                // throwing an error here will cause the callback to be called again unnecessarily
-                if (err.message === AUTH_ERR_MSG || (err as any).status === 401) {
-                    const gl = this.painter.context.gl;
-                    storeAuthState(gl, false);
-                    if (this._logoControl instanceof LogoControl) {
-                        this._logoControl._updateLogo();
-                    }
-                    if (gl) gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+            // 关闭 AccessToken 身份验证处理
+            // if (err) {
+            //     // throwing an error here will cause the callback to be called again unnecessarily
+            //     if (err.message === AUTH_ERR_MSG || (err as any).status === 401) {
+            //         const gl = this.painter.context.gl;
+            //         storeAuthState(gl, false);
+            //         if (this._logoControl instanceof LogoControl) {
+            //             this._logoControl._updateLogo();
+            //         }
+            //         if (gl) gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
-                    if (!this._silenceAuthErrors) {
-                        this.fire(new ErrorEvent(new Error('A valid Mapbox access token is required to use Mapbox GL JS. To create an account or a new access token, visit https://account.mapbox.com/')));
-                    }
-                }
-            }
+            //         if (!this._silenceAuthErrors) {
+            //             this.fire(new ErrorEvent(new Error('A valid Mapbox access token is required to use Mapbox GL JS. To create an account or a new access token, visit https://account.mapbox.com/')));
+            //         }
+            //     }
+            // }
         });
 
-        postMapLoadEvent(this._getMapId(), this._requestManager._skuToken, this._requestManager._customAccessToken, () => {});
+        postMapLoadEvent(this._getMapId(), this._requestManager._skuToken, this._requestManager._customAccessToken, () => { });
     }
 
     /***** END WARNING - REMOVAL OR MODIFICATION OF THE
@@ -4738,7 +4739,7 @@ export class Map extends Camera {
             //calculate the % visual completeness
             const interval = timeStamps[i + 2] - timeStamps[i + 1];
             const visualCompletness = cnt / numPixels;
-            finalScore +=  interval * (1 - visualCompletness);
+            finalScore += interval * (1 - visualCompletness);
         }
         return finalScore;
     }
@@ -4861,7 +4862,7 @@ export class Map extends Camera {
 
     _onWindowResize(event: UIEvent) {
         if (this._trackResize) {
-            this.resize({originalEvent: event})._update();
+            this.resize({ originalEvent: event })._update();
         }
     }
 
